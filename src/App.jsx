@@ -31,7 +31,7 @@ function App() {
     // Refresh token every 26 minutes
     const interval = setInterval(() => {
       refreshTokenApi();
-    }, 26 * 60 * 1000);
+    }, 1 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, []);
