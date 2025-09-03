@@ -1,0 +1,62 @@
+{
+  "data": {
+    "chapter": "Mechanics",
+    "examDate": "2025-09-05",
+    "subject": "Physics",
+    "topics": [
+      {
+        "questions": [
+          {
+            "difficulty": "easy",
+            "options": [
+              {"text": "100 km", "label": "A"},
+              {"text": "120 km", "label": "B"},
+              {"text": "150 km", "label": "C"},
+              {"text": "200 km", "label": "D"}
+            ],
+            "id": 1,
+            "text": "A car moves with a constant speed of 60 km/h. How far will it travel in 2 hours?"
+          },
+          {
+            "difficulty": "medium",
+            "options": [
+              {"text": "1 s", "label": "A"},
+              {"text": "2 s", "label": "B"},
+              {"text": "3 s", "label": "C"},
+              {"text": "4 s", "label": "D"}
+            ],
+            "id": 2,
+            "text": "An object is dropped from a height of 20 m. Find the time taken to reach the ground."
+          }
+        ],
+        "topic": "Kinematics"
+      },
+      {
+        "questions": [
+          {
+            "difficulty": "easy",
+            "options": [
+              {"text": "2 m/s²", "label": "A"},
+              {"text": "5 m/s²", "label": "B"},
+              {"text": "10 m/s²", "label": "C"},
+              {"text": "20 m/s²", "label": "D"}
+            ],
+            "id": 3,
+            "text": "A force of 10 N acts on a mass of 2 kg. What is the acceleration?"
+          }
+        ],
+        "topic": "Dynamics"
+      }
+    ],
+    "examName": "Physics Mid-Term Exam",
+    "examType": "Subject Wise",
+    "totalQs": 6,
+    "totalMarks": 100,
+    "created_by": "Subham Mitra",
+    "duration": "90 mins",
+    "exam": "Mid-Term",
+    "branch_name": "Kolkata",
+    "inst_name": "ABC Inst"
+  },
+  "Message": "Success"
+}
