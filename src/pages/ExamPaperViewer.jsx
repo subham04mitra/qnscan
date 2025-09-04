@@ -48,17 +48,17 @@ const ExamPaperViewer = ({ paperId }) => {
     );
 
     let yOffset = 62;
-
+    let count=0;
     exam.topics.forEach((topic, idx) => {
       if (!topic || !topic.questions) return;
 
-      doc.setFontSize(14);
-      doc.text(`Topic ${idx + 1}: ${topic.topic || ""}`, 10, yOffset);
-      yOffset += 8;
+      // doc.setFontSize(14);
+      // doc.text(`Topic ${idx + 1}: ${topic.topic || ""}`, 10, yOffset);
+      // yOffset += 8;
 
       topic.questions.forEach((q, qIdx) => {
         doc.setFontSize(12);
-        doc.text(`${qIdx + 1}. ${q.text || ""} (${q.difficulty || ""})`, 10, yOffset);
+        doc.text(`${count + 1}. ${q.text || ""} `, 10, yOffset);
         yOffset += 6;
 
         q.options?.forEach((opt) => {
@@ -67,6 +67,7 @@ const ExamPaperViewer = ({ paperId }) => {
         });
 
         yOffset += 4; // space between questions
+        count++;
       });
 
       yOffset += 6; // space between topics

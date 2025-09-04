@@ -32,6 +32,7 @@ export default function CreatePaper() {
   const [totalQs, setTotalQs] = useState("");
   const [exam, setExam] = useState("");
   const [examType, setExamType] = useState("");
+  const [examMock, setExamMock] = useState([]);
   const [subject, setSubject] = useState("");
   const [chapter, setChapter] = useState("");
   const [examTypes, setExamTypes] = useState([]);
@@ -39,16 +40,21 @@ export default function CreatePaper() {
   const [subjects, setSubjects] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [topics, setTopics] = useState([]);
-const [selectedPaperId, setSelectedPaperId] = useState(null);
-const [showPaperModal, setShowPaperModal] = useState(false); 
-const toggleOpen = () => setShowPaperModal(!showPaperModal);
-// get exam types
+  const [selectedPaperId, setSelectedPaperId] = useState(null);
+  const [showPaperModal, setShowPaperModal] = useState(false);
+  const toggleOpen = () => setShowPaperModal(!showPaperModal);
+  // get exam types
   useEffect(() => {
     api.get("/exam-type").then((res) => {
       setExamTypes(res.data.data);
     });
   }, []);
 
+  useEffect(() => {
+    api.get("/exam-name").then((res) => {
+      setExamMock(res.data.data);
+    });
+  }, []);
   // get subjects
   useEffect(() => {
     api.get("/subjects").then((res) => {
@@ -76,107 +82,114 @@ const toggleOpen = () => setShowPaperModal(!showPaperModal);
 
   // checkbox toggle
   // checkbox toggle
-const handleCheckbox = (id) => {
-  setSelectedTopics((prev) => {
-    const isSelected = !prev[id]?.selected;
-    return {
-      ...prev,
-      [id]: {
-        ...prev[id],
-        selected: isSelected,
-        easy: isSelected ? prev[id]?.easy || "" : "",
-        medium: isSelected ? prev[id]?.medium || "" : "",
-        hard: isSelected ? prev[id]?.hard || "" : "",
-      },
-    };
-  });
-};
+  const handleCheckbox = (id) => {
+    setSelectedTopics((prev) => {
+      const isSelected = !prev[id]?.selected;
+      return {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          selected: isSelected,
+          easy: isSelected ? prev[id]?.easy || "" : "",
+          medium: isSelected ? prev[id]?.medium || "" : "",
+          hard: isSelected ? prev[id]?.hard || "" : "",
+        },
+      };
+    });
+  };
 
 
   // input change
   const handleInputChange = (id, field, value) => {
-  setSelectedTopics((prev) => ({
-    ...prev,
-    [id]: {
-      ...prev[id],
-      [field]: value,
-    },
-  }));
-};
+    setSelectedTopics((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value,
+      },
+    }));
+  };
 
 
   // save
-const handleSave = () => {
-  const selected = Object.entries(selectedTopics)
-    .filter(([_, val]) => val.selected)
-    .map(([id, val]) => ({
-      topic: id,
-      easy: val.easy || 0,
-      medium: val.medium || 0,
-      hard: val.hard || 0,
-    }));
+  const handleSave = () => {
+    
 
-  console.log("Saved Data:", {
-    examName,
-    duration,
-    examDate,
-    totalMarks,
-    totalQs,
-    exam,
-    examType,
-    subject,
-    chapter,
-    topics: selected,
+   
+const selected = Object.entries(selectedTopics)
+  .filter(([_, val]) => val.selected)
+  .flatMap(([id, val]) => {
+    const arr = [];
+    if (val.easy) arr.push({ topic: id, type: "E", count: val.easy });
+    if (val.medium) arr.push({ topic: id, type: "M", count: val.medium });
+    if (val.hard) arr.push({ topic: id, type: "H", count: val.hard });
+    return arr;
   });
 
-  // Make API call here
-  api
-    .post("/save-paper", {
-      examName,
-      duration,
-      examDate,
-      totalMarks,
-      totalQs,
-      exam,
-      examType,
-      subject,
-      chapter,
-      topics: selected,
-    })
-    .then((res) => {
-       const paperId = res.data.data; // e.g., "P01"
-  // Render PaperView with this ID
-  setSelectedPaperId(paperId);
-  setTimeout(() => setShowPaperModal(true), 0);
-      toast.success(res.data.Message, {
-        position: "top-right",
-        autoClose: 1500,
+
+    // Make API call here
+    api
+      .post("/save-paper", {
+        examName,
+        duration,
+        examDate,
+        totalMarks,
+        totalQs,
+        exam,
+        examType,
+        subject,
+        chapter,
+        topics: selected,
+      })
+      .then((res) => {
+        const paperId = res.data.data; // e.g., "P01"
+        // Render PaperView with this ID
+        setSelectedPaperId(paperId);
+        setTimeout(() => setShowPaperModal(true), 0);
+        toast.success(res.data.Message, {
+          position: "top-right",
+          autoClose: 1500,
+        });
+        setExamName("");
+        setDuration("");
+        setExamDate("")
+        setTotalMarks("")
+        setTotalQs("")
+        setExam("")
+        setExamType("")
+        setSubject("")
+        setChapter("")
+        setTopics([])
+        setSelectedTopics({}); 
+              })
+      .catch((err) => {
+        toast.error(err.response?.data?.Message || "Something went wrong!", {
+          position: "top-right",
+          autoClose: 1500,
+        });
       });
-    })
-    .catch((err) => {
-      toast.error(err.response?.data?.Message || "Something went wrong!", {
-        position: "top-right",
-        autoClose: 1500,
-      });
-    });
-};
+  };
 
 
   // what to show in table
   let tableTopics = [];
-  if (examType === "Subject Wise" && subject) {
+  if (examType === "PAT2" && subject) {
     tableTopics = chapters;
-  } else if (examType === "Chapter Wise" && chapter) {
+  } else if (examType === "PAT3" && chapter) {
     tableTopics = topics;
   }
+  else if (examType === "PAT1" ) {
+    tableTopics = subjects;
+  }
+  console.log(subjects);
 
   return (
     <MDBContainer
       fluid
       className="d-flex justify-content-center align-items-start min-vh-100"
-     
+
     >
-      <MDBCard className="w-100" style={{ maxWidth: "1000px" }}>
+      <MDBCard className="w-100" style={{ maxWidth: "100%" }}>
         <MDBCardBody>
           <MDBTypography tag="h4" className="text-center mb-4">
             Paper Creation
@@ -234,8 +247,11 @@ const handleSave = () => {
                 onChange={(e) => setExam(e.target.value)}
               >
                 <option value="">Select Exam</option>
-                <option value="Exam1">Exam 1</option>
-                <option value="Exam2">Exam 2</option>
+                {examMock.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
               </select>
             </MDBCol>
             <MDBCol md="3">
@@ -249,15 +265,15 @@ const handleSave = () => {
                 }}
               >
                 <option value="">Select Exam Type</option>
-                {examTypes.map((type, idx) => (
-                  <option key={idx} value={type}>
-                    {type}
+                {examTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
                   </option>
                 ))}
               </select>
             </MDBCol>
 
-            {examType === "Subject Wise" && (
+            {examType === "PAT2" && (
               <MDBCol md="3">
                 <select
                   className="form-select"
@@ -274,174 +290,182 @@ const handleSave = () => {
               </MDBCol>
             )}
 
-            {examType === "Chapter Wise" && (
-  <>
-    <MDBCol md="3">
-      <select
-        className="form-select"
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-      >
-        <option value="">Select Subject</option>
-        {subjects.map((sub) => (
-          <option key={sub.id} value={sub.id}>
-            {sub.name}
-          </option>
-        ))}
-      </select>
-    </MDBCol>
+            {examType === "PAT3" && (
+              <>
+                <MDBCol md="3">
+                  <select
+                    className="form-select"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </select>
+                </MDBCol>
 
-    {subject && (
-      <MDBCol md="3">
-        <select
-          className="form-select"
-          value={chapter}
-          onChange={(e) => setChapter(e.target.value)}
-        >
-          <option value="">Select Chapter</option>
-          {chapters.map((ch) => (
-            <option key={ch.id} value={ch.id}>
-              {ch.name}
-            </option>
-          ))}
-        </select>
-      </MDBCol>
-    )}
-  </>
-)}
+                {subject && (
+                  <MDBCol md="3">
+                    <select
+                      className="form-select"
+                      value={chapter}
+                      onChange={(e) => setChapter(e.target.value)}
+                    >
+                      <option value="">Select Chapter</option>
+                      {chapters.map((ch) => (
+                        <option key={ch.id} value={ch.id}>
+                          {ch.name}
+                        </option>
+                      ))}
+                    </select>
+                  </MDBCol>
+                )}
+              </>
+            )}
 
           </MDBRow>
+          {console.log(tableTopics)}
 
           {/* Table */}
           {/* Table */}
-{examType !== "Full Exam" && tableTopics.length > 0 && (
-  <>
-    {/* Desktop Table */}
-    <div className="table-responsive mt-4 d-none d-md-block">
-      <MDBTable bordered small align="middle">
-        <MDBTableHead>
-          <tr>
-            <th>Select</th>
-            <th>{examType === "Subject Wise" ? "Chapter" : "Topic"}</th>
-            <th>Available Qs</th>
-            <th>Easy Qs</th>
-            <th>Medium Qs</th>
-            <th>Hard Qs</th>
-          </tr>
-        </MDBTableHead>
-        <MDBTableBody>
-          {tableTopics.map((item, index) => (
-            <tr key={item.id}>
-              <td>
-                <MDBCheckbox
-                  checked={selectedTopics[item.id]?.selected || false}
-                  onChange={() => handleCheckbox(item.id)}
-                />
-              </td>
-              <td>{item.name}</td>
-              <td>{item.availableQs}</td>
-              <td>
-                <MDBInput
-                  type="number"
-                  size="sm"
-                  value={selectedTopics[item.id]?.easy || ""}
-                  disabled={!selectedTopics[item.id]?.selected}
-                  onChange={(e) => handleInputChange(item.id, "easy", e.target.value)}
-                />
-              </td>
-              <td>
-                <MDBInput
-                  type="number"
-                  size="sm"
-                  value={selectedTopics[item.id]?.medium || ""}
-                  disabled={!selectedTopics[item.id]?.selected}
-                  onChange={(e) => handleInputChange(item.id, "medium", e.target.value)}
-                />
-              </td>
-              <td>
-                <MDBInput
-                  type="number"
-                  size="sm"
-                  value={selectedTopics[item.id]?.hard || ""}
-                  disabled={!selectedTopics[item.id]?.selected}
-                  onChange={(e) => handleInputChange(item.id, "hard", e.target.value)}
-                />
-              </td>
-            </tr>
-          ))}
-        </MDBTableBody>
-      </MDBTable>
-    </div>
+          {tableTopics.length > 0 && (
+            <>
+              {/* Desktop Table */}
+              <div className="table-responsive mt-4 d-none d-md-block">
+                <MDBTable bordered small align="middle">
+                  <MDBTableHead>
+                    <tr>
+                      <th>Select</th>
+                      <th>
+                        {examType === "PAT1"
+                          ? "Subject"
+                          : examType === "PAT2"
+                            ? "Chapter"
+                            : "Topic"}
+                      </th>
 
-    {/* Mobile Table */}
-    <div className="mt-4 d-md-none">
-      {tableTopics.map((item, index) => (
-        <div key={index} className="border p-3 mb-2 rounded">
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <MDBCheckbox
-              checked={selectedTopics[item.id]?.selected || false}
-              onChange={() => handleCheckbox(item.id)}
-            />
-            <span>
-              <strong>{item.name}</strong> | Available: {item.availableQs}
-            </span>
-          </div>
-          {selectedTopics[item.name]?.selected && (
-            <MDBRow className="gy-2">
-              <MDBCol xs="12">
-                <MDBInput
-                  label="Easy Qs"
-                  type="number"
-                  value={selectedTopics[item.id]?.easy || ""}
-                  onChange={(e) => handleInputChange(item.id, "easy", e.target.value)}
-                />
-              </MDBCol>
-              <MDBCol xs="12">
-                <MDBInput
-                  label="Medium Qs"
-                  type="number"
-                  value={selectedTopics[item.id]?.medium || ""}
-                  onChange={(e) => handleInputChange(item.id, "medium", e.target.value)}
-                />
-              </MDBCol>
-              <MDBCol xs="12">
-                <MDBInput
-                  label="Hard Qs"
-                  type="number"
-                  value={selectedTopics[item.id]?.hard || ""}
-                  onChange={(e) => handleInputChange(item.id, "hard", e.target.value)}
-                />
-              </MDBCol>
-            </MDBRow>
+                      <th>Available Qs</th>
+                      <th>Easy Qs</th>
+                      <th>Medium Qs</th>
+                      <th>Hard Qs</th>
+                    </tr>
+                  </MDBTableHead>
+                  <MDBTableBody>
+                    {tableTopics.map((item, index) => (
+                      <tr key={item.id}>
+                        <td>
+                          <MDBCheckbox
+                            checked={selectedTopics[item.id]?.selected || false}
+                            onChange={() => handleCheckbox(item.id)}
+                          />
+                        </td>
+                        <td>{item.name}</td>
+                        <td>{item.availableQs}</td>
+                        <td>
+                          <MDBInput
+                            type="number"
+                            size="sm"
+                            value={selectedTopics[item.id]?.easy || ""}
+                            disabled={!selectedTopics[item.id]?.selected}
+                            onChange={(e) => handleInputChange(item.id, "easy", e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <MDBInput
+                            type="number"
+                            size="sm"
+                            value={selectedTopics[item.id]?.medium || ""}
+                            disabled={!selectedTopics[item.id]?.selected}
+                            onChange={(e) => handleInputChange(item.id, "medium", e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <MDBInput
+                            type="number"
+                            size="sm"
+                            value={selectedTopics[item.id]?.hard || ""}
+                            disabled={!selectedTopics[item.id]?.selected}
+                            onChange={(e) => handleInputChange(item.id, "hard", e.target.value)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </MDBTableBody>
+                </MDBTable>
+              </div>
+
+              {/* Mobile Table */}
+              <div className="mt-4 d-md-none">
+                {tableTopics.map((item, index) => (
+                  <div key={index} className="border p-3 mb-2 rounded">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <MDBCheckbox
+                        checked={selectedTopics[item.id]?.selected || false}
+                        onChange={() => handleCheckbox(item.id)}
+                      />
+                      <span>
+                        <strong>{item.name}</strong> | Available: {item.availableQs}
+                      </span>
+                    </div>
+                    {selectedTopics[item.id]?.selected && (
+                      <MDBRow className="gy-2">
+                        <MDBCol xs="12">
+                          <MDBInput
+                            label="Easy Qs"
+                            type="number"
+                            value={selectedTopics[item.id]?.easy || ""}
+                            onChange={(e) => handleInputChange(item.id, "easy", e.target.value)}
+                          />
+                        </MDBCol>
+                        <MDBCol xs="12">
+                          <MDBInput
+                            label="Medium Qs"
+                            type="number"
+                            value={selectedTopics[item.id]?.medium || ""}
+                            onChange={(e) => handleInputChange(item.id, "medium", e.target.value)}
+                          />
+                        </MDBCol>
+                        <MDBCol xs="12">
+                          <MDBInput
+                            label="Hard Qs"
+                            type="number"
+                            value={selectedTopics[item.id]?.hard || ""}
+                            onChange={(e) => handleInputChange(item.id, "hard", e.target.value)}
+                          />
+                        </MDBCol>
+                      </MDBRow>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
-        </div>
-      ))}
-    </div>
-  </>
-)}
 
- 
+
           <div className="text-center mt-4">
             <MDBBtn onClick={handleSave}>Save</MDBBtn>
           </div>
 
-           {/* {selectedPaperId && <ExamPaperViewer paperId={selectedPaperId} />} */}
+          {/* {selectedPaperId && <ExamPaperViewer paperId={selectedPaperId} />} */}
 
 
-           {/* Exam Paper Modal */}
- <MDBModal  open={showPaperModal} onClose={() => setShowPaperModal(false)} tabIndex='-1'>
-        <MDBModalDialog>
-          <MDBModalContent>
-            <MDBModalHeader>
-              <MDBModalTitle>Modal title</MDBModalTitle>
-              <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
-            </MDBModalHeader>
-            <MDBModalBody> {selectedPaperId && <ExamPaperViewer paperId={selectedPaperId} />}</MDBModalBody>
+          {/* Exam Paper Modal */}
+          <MDBModal open={showPaperModal} onClose={() => setShowPaperModal(false)} tabIndex='-1'>
+            <MDBModalDialog>
+              <MDBModalContent>
+                <MDBModalHeader>
+                  <MDBModalTitle>Download the Paper</MDBModalTitle>
+                  <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
+                </MDBModalHeader>
+                <MDBModalBody> {selectedPaperId && <ExamPaperViewer paperId={selectedPaperId} />}</MDBModalBody>
 
-            
-          </MDBModalContent>
-        </MDBModalDialog>
-      </MDBModal>
+
+              </MDBModalContent>
+            </MDBModalDialog>
+          </MDBModal>
 
 
 
