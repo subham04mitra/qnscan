@@ -147,7 +147,7 @@ const selected = Object.entries(selectedTopics)
         setSelectedPaperId(paperId);
         setTimeout(() => setShowPaperModal(true), 0);
         toast.success(res.data.Message, {
-          position: "top-right",
+          position: "bottom-right",
           autoClose: 1500,
         });
         setExamName("");
@@ -164,7 +164,7 @@ const selected = Object.entries(selectedTopics)
               })
       .catch((err) => {
         toast.error(err.response?.data?.Message || "Something went wrong!", {
-          position: "top-right",
+          position: "bottom-right",
           autoClose: 1500,
         });
       });
