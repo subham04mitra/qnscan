@@ -6,6 +6,7 @@ import api from "../api/api";
 const ExamPaperViewer = ({ paperId }) => {
   const [examData, setExamData] = useState(null);
 
+  
  useEffect(() => {
   if (!paperId) return; // only fetch if paperId exists
 

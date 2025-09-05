@@ -18,7 +18,8 @@ import {
   MDBModalHeader,
   MDBModalBody,
   MDBModalTitle,
-  MDBModalFooter
+  MDBModalFooter,
+  MDBCardHeader
 } from "mdb-react-ui-kit";
 import api from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -243,10 +244,10 @@ const getCountsArray = (availableQs = []) => {
 
     >
       <MDBCard className="w-100" style={{ maxWidth: "100%" }}>
+         <MDBCardHeader className="text-center bg-secondary text-white">
+              <h4>Create Paper</h4></MDBCardHeader>
         <MDBCardBody>
-          <MDBTypography tag="h4" className="text-center mb-4">
-            Paper Creation
-          </MDBTypography>
+         
 
           {/* Top fields */}
           <MDBRow className="gy-3">

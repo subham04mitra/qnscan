@@ -14,7 +14,7 @@ import { logoutApi } from "../api/authService";
 import "./Sidebar.css";
 import { ToastContainer, toast } from "react-toastify"; // ✅ correct import
 import "react-toastify/dist/ReactToastify.css"; // ✅ include styles
-import logo from "../assets/logo.png";
+import logo from "../assets/logo2.png";
 import { useNavigate } from "react-router-dom";
 const avatarImg =logo;
 

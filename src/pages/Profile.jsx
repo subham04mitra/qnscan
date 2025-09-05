@@ -9,6 +9,7 @@ import {
   MDBCardImage,
   MDBBtn,
   MDBTypography,
+  MDBCardHeader,
 } from "mdb-react-ui-kit";
 import { decodeToken, getToken } from "../utils/jwtUtils";
 import {
@@ -21,6 +22,7 @@ import {
   FaRegCheckCircle,
   FaUniversity,
 } from "react-icons/fa"; // Added icons
+import api from "../api/api";
 
 export default function Profile() {
   const userData = JSON.parse(localStorage.getItem("userData"));
@@ -31,6 +33,7 @@ export default function Profile() {
   const userBranch = userData?.user_branch;
 
   const [role, setRole] = useState(null);
+  const [dashdata, setDashdata] = useState({});
 
   useEffect(() => {
     const token = getToken();
@@ -39,7 +42,11 @@ export default function Profile() {
       setRole(decoded?.role);
     }
   }, []);
-
+useEffect(() => {
+    api.get("/dash").then((res) => {
+      setDashdata(res.data.data);
+    });
+  }, []);
   return (
     <div
       className="min-vh-100 d-flex align-items-center"
@@ -47,16 +54,18 @@ export default function Profile() {
     >
       <MDBContainer fluid className="py-5">
         <MDBRow className="justify-content-center">
-        <MDBCol size="12" md="8" lg="6" xl="5" className="d-flex justify-content-center">
+        <MDBCol size="12" md="8" lg="12" xl="5" className="d-flex justify-content-center">
   <MDBCard
     style={{
       borderRadius: "15px",
       width: "100%",
-      maxWidth: "700px", // expanded for large screens
+      maxWidth: "1000px", // expanded for large screens
     }}
     className="shadow-sm mx-auto"
   >
     <MDBCardBody className="text-center">
+      <MDBCardHeader className="text-center bg-secondary text-white">
+              <h4>User Profile</h4></MDBCardHeader>
       {/* Avatar */}
       <div className="mt-3 mb-4">
         <MDBCardImage
@@ -102,7 +111,7 @@ export default function Profile() {
   {/* Teacher Count (only for ADMIN & OWNER) */}
   {(role === "ADMIN" || role === "OWNER") && (
     <div className="flex-fill p-2" style={{ minWidth: "150px" }}>
-      <MDBCardText className="mb-1 h5">5</MDBCardText>
+      <MDBCardText className="mb-1 h5">{dashdata?.tot_teacher||0}</MDBCardText>
       <MDBCardText className="small text-muted mb-0 d-flex justify-content-center align-items-center">
         <FaChalkboardTeacher className="me-1 text-primary" />
         Teacher Count
@@ -113,7 +122,7 @@ export default function Profile() {
   {/* Papers Generated (for all roles) */}
   {(role === "ADMIN" || role === "OWNER" || role === "TEACHER") && (
     <div className="flex-fill p-2" style={{ minWidth: "150px" }}>
-      <MDBCardText className="mb-1 h5">15</MDBCardText>
+      <MDBCardText className="mb-1 h5">{dashdata?.tot_paper||0}</MDBCardText>
       <MDBCardText className="small text-muted mb-0 d-flex justify-content-center align-items-center">
         <FaFileAlt className="me-1 text-success" />
         Papers Generated
@@ -124,7 +133,7 @@ export default function Profile() {
   {/* OMR Sheet Scanned (for all roles) */}
   {(role === "ADMIN" || role === "OWNER" || role === "TEACHER") && (
     <div className="flex-fill p-2" style={{ minWidth: "150px" }}>
-      <MDBCardText className="mb-1 h5">50</MDBCardText>
+      <MDBCardText className="mb-1 h5">{dashdata?.tot_scan||0}</MDBCardText>
       <MDBCardText className="small text-muted mb-0 d-flex justify-content-center align-items-center">
         <FaRegCheckCircle className="me-1 text-warning" />
         OMR Sheet Scanned
@@ -135,7 +144,7 @@ export default function Profile() {
   {/* Branch Count (only for ADMIN) */}
   {role === "ADMIN" && (
     <div className="flex-fill p-2" style={{ minWidth: "150px" }}>
-      <MDBCardText className="mb-1 h5">3</MDBCardText>
+      <MDBCardText className="mb-1 h5">{dashdata?.tot_branch||0}</MDBCardText>
       <MDBCardText className="small text-muted mb-0 d-flex justify-content-center align-items-center">
         <FaUniversity className="me-1 text-danger" />
         Branch Count

@@ -5,7 +5,6 @@ import LoginForm from "./components/LoginForm";
 import MainLayout from "./components/MainLayout";
 import PrivateRoute from "./components/PrivateRoute";
 import Dashboard from "./pages/Dashboard";
-import ManageUsers from "./pages/ManageUsers";
 import CreateUser from "./pages/CreateUser";
 import UploadPaper from "./pages/UploadPaper";
 import CreatePaper from "./pages/CreatePaper";

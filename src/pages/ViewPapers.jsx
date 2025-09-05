@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
-import { MDBBtn, MDBModal, MDBModalDialog, MDBModalContent, MDBModalHeader, MDBModalTitle, MDBModalBody } from "mdb-react-ui-kit";
+import { MDBBtn, MDBModal, MDBModalDialog, MDBModalContent, MDBModalHeader, MDBModalTitle, MDBModalBody, MDBCardHeader } from "mdb-react-ui-kit";
 import api from "../api/api";
 import PaperView from "./PaperView";
 
@@ -39,11 +39,21 @@ const ViewPapers = () => {
     },
   ];
 
+const customStyles = {
+  headCells: {
+    style: {
+      fontWeight: "bold",
+      color: "red",
+       whiteSpace: "nowrap", 
+    },
+  },
+};
 
   return (
     <>
+    <MDBCardHeader className="text-center bg-secondary text-white">
+              <h4>Paper List</h4></MDBCardHeader>
       <DataTable
-        title="Paper List"
         columns={columns}
         data={papers}
         pagination
@@ -51,6 +61,7 @@ const ViewPapers = () => {
         striped
         responsive
         persistTableHead
+        customStyles={customStyles}
       />
 
       <MDBModal open={showPaperModal} staticBackdrop={false} onClose={() => setShowPaperModal(false)} tabIndex="-1">

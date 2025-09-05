@@ -7,6 +7,7 @@ const PaperView = ({ paperId,subject,chapter,topic }) => {
   const [examData, setExamData] = useState(null);
 console.log(subject);
 
+
  useEffect(() => {
   if (!paperId) return; // only fetch if paperId exists
 
