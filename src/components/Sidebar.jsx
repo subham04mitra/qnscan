@@ -48,7 +48,6 @@ function Sidebar({ role, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const menuItems = [
     { path: "/", label: "Dashboard", icon: <FaTachometerAlt />, roles: ["ADMIN", "TEACHER", "OWNER"] },
     { path: "/profile", label: "Profile", icon: <FaUser />, roles: ["ADMIN", "TEACHER", "OWNER"] },
-    { path: "/manage-users", label: "Manage Users", icon: <FaUsers />, roles: ["ADMIN"] },
     { path: "/create-user", label: "Create User", icon: <FaUser />, roles: ["ADMIN", "OWNER"] },
     { path: "/upload-paper", label: "Upload Paper", icon: <FaUpload />, roles: ["ADMIN", "TEACHER"] },
     { path: "/create-paper", label: "Create Paper", icon: <FaFileAlt />, roles: ["ADMIN", "TEACHER"] },

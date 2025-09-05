@@ -112,64 +112,117 @@ export default function CreatePaper() {
 
 
   // save
-  const handleSave = () => {
-    
+ // save
+const handleSave = () => {
+  // 1. Check required fields
+  if (!examName || !duration || !examDate || !totalMarks || !totalQs || !exam || !examType) {
+    toast.error("All fields are required!", { position: "bottom-right", autoClose: 1500 });
+    return;
+  }
 
-   
-const selected = Object.entries(selectedTopics)
-  .filter(([_, val]) => val.selected)
-  .flatMap(([id, val]) => {
-    const arr = [];
-    if (val.easy) arr.push({ topic: id, type: "E", count: val.easy });
-    if (val.medium) arr.push({ topic: id, type: "M", count: val.medium });
-    if (val.hard) arr.push({ topic: id, type: "H", count: val.hard });
-    return arr;
-  });
+  const selected = [];
 
+  for (const [id, val] of Object.entries(selectedTopics)) {
+    if (!val.selected) continue;
 
-    // Make API call here
-    api
-      .post("/save-paper", {
-        examName,
-        duration,
-        examDate,
-        totalMarks,
-        totalQs,
-        exam,
-        examType,
-        subject,
-        chapter,
-        topics: selected,
-      })
-      .then((res) => {
-        const paperId = res.data.data; // e.g., "P01"
-        // Render PaperView with this ID
-        setSelectedPaperId(paperId);
-        setTimeout(() => setShowPaperModal(true), 0);
-        toast.success(res.data.Message, {
-          position: "bottom-right",
-          autoClose: 1500,
-        });
-        setExamName("");
-        setDuration("");
-        setExamDate("")
-        setTotalMarks("")
-        setTotalQs("")
-        setExam("")
-        setExamType("")
-        setSubject("")
-        setChapter("")
-        setTopics([])
-        setSelectedTopics({}); 
-              })
-      .catch((err) => {
-        toast.error(err.response?.data?.Message || "Something went wrong!", {
-          position: "bottom-right",
-          autoClose: 1500,
-        });
+    const topic = tableTopics.find(t => t.id === id);
+    const available = getCountsArray(topic?.availableQs || []);
+
+    // Easy
+    if (val.easy) {
+      if (val.easy < 0) {
+        toast.error("Easy Qs cannot be negative!", { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      if (val.easy > available[0]) {
+        toast.error(`Easy Qs cannot exceed available (${available[0]})`, { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      selected.push({ topic: id, type: "E", count: val.easy });
+    }
+
+    // Medium
+    if (val.medium) {
+      if (val.medium < 0) {
+        toast.error("Medium Qs cannot be negative!", { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      if (val.medium > available[1]) {
+        toast.error(`Medium Qs cannot exceed available (${available[1]})`, { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      selected.push({ topic: id, type: "M", count: val.medium });
+    }
+
+    // Hard
+    if (val.hard) {
+      if (val.hard < 0) {
+        toast.error("Hard Qs cannot be negative!", { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      if (val.hard > available[2]) {
+        toast.error(`Hard Qs cannot exceed available (${available[2]})`, { position: "bottom-right", autoClose: 1500 });
+        return;
+      }
+      selected.push({ topic: id, type: "H", count: val.hard });
+    }
+  }
+
+  // if no topics selected
+  if (selected.length === 0) {
+    toast.error("Please select at least one topic!", { position: "bottom-right", autoClose: 1500 });
+    return;
+  }
+
+  // ✅ API call
+  api.post("/save-paper", {
+    examName,
+    duration,
+    examDate,
+    totalMarks,
+    totalQs,
+    exam,
+    examType,
+    subject,
+    chapter,
+    topics: selected,
+  })
+    .then((res) => {
+      const paperId = res.data.data; // e.g., "P01"
+      setSelectedPaperId(paperId);
+      setTimeout(() => setShowPaperModal(true), 1000);
+      toast.success(res.data.Message, {
+        position: "bottom-right",
+        autoClose: 1500,
       });
-  };
+      // reset fields
+      setExamName("");
+      setDuration("");
+      setExamDate("");
+      setTotalMarks("");
+      setTotalQs("");
+      setExam("");
+      setExamType("");
+      setSubject("");
+      setChapter("");
+      setTopics([]);
+      setSelectedTopics({});
+    })
+    .catch((err) => {
+      toast.error(err.response?.data?.Message || "Something went wrong!", {
+        position: "bottom-right",
+        autoClose: 1500,
+      });
+    });
+};
 
+
+const getCountsArray = (availableQs = []) => {
+  const easy = availableQs.find(q => q.ques_type === "E")?.count || 0;
+  const medium = availableQs.find(q => q.ques_type === "M")?.count || 0;
+  const hard = availableQs.find(q => q.ques_type === "H")?.count || 0;
+  return [easy, medium, hard];
+};
 
   // what to show in table
   let tableTopics = [];
@@ -363,7 +416,8 @@ const selected = Object.entries(selectedTopics)
                           />
                         </td>
                         <td>{item.name}</td>
-                        <td>{item.availableQs}</td>
+                        <td>[{getCountsArray(item.availableQs).join(", ")}]</td>
+
                         <td>
                           <MDBInput
                             type="number"
@@ -407,7 +461,7 @@ const selected = Object.entries(selectedTopics)
                         onChange={() => handleCheckbox(item.id)}
                       />
                       <span>
-                        <strong>{item.name}</strong> | Available: {item.availableQs}
+                        <strong>{item.name}</strong> | Available: {getCountsArray(item.availableQs).join(", ")}
                       </span>
                     </div>
                     {selectedTopics[item.id]?.selected && (
@@ -453,7 +507,7 @@ const selected = Object.entries(selectedTopics)
 
 
           {/* Exam Paper Modal */}
-          <MDBModal open={showPaperModal} onClose={() => setShowPaperModal(false)} tabIndex='-1'>
+          <MDBModal open={showPaperModal} staticBackdrop={false} onClose={() => setShowPaperModal(false)} tabIndex='-1'>
             <MDBModalDialog>
               <MDBModalContent>
                 <MDBModalHeader>

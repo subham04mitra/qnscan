@@ -82,14 +82,7 @@ function App() {
         <Route index element={<Dashboard />} />
 
         {/* ADMIN only */}
-        <Route
-          path="manage-users"
-          element={
-            <PrivateRoute role={role} allowedRoles={["ADMIN"]}>
-              <ManageUsers />
-            </PrivateRoute>
-          }
-        />
+       
 
         {/* ADMIN, OWNER */}
         <Route
