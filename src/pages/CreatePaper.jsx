@@ -19,7 +19,11 @@ import {
   MDBModalBody,
   MDBModalTitle,
   MDBModalFooter,
-  MDBCardHeader
+  MDBCardHeader,
+  MDBDropdown,
+  MDBDropdownToggle,
+  MDBDropdownMenu,
+  MDBDropdownItem
 } from "mdb-react-ui-kit";
 import api from "../api/api";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,6 +34,7 @@ export default function CreatePaper() {
   const [duration, setDuration] = useState("");
   const [examDate, setExamDate] = useState("");
   const [totalMarks, setTotalMarks] = useState("");
+  const [eachMark, seteachMark] = useState("");
   const [totalQs, setTotalQs] = useState("");
   const [exam, setExam] = useState("");
   const [examType, setExamType] = useState("");
@@ -116,7 +121,7 @@ export default function CreatePaper() {
  // save
 const handleSave = () => {
   // 1. Check required fields
-  if (!examName || !duration || !examDate || !totalMarks || !totalQs || !exam || !examType) {
+  if (!examName || !duration || !examDate || !eachMark || !totalQs || !exam || !examType) {
     toast.error("All fields are required!", { position: "bottom-right", autoClose: 1500 });
     return;
   }
@@ -175,17 +180,27 @@ const handleSave = () => {
     return;
   }
 
+  const totalSelectedCount = selected.reduce((sum, t) => sum + Number(t.count), 0);
+if (Number(totalQs) !== totalSelectedCount) {
+  toast.error(`Total Qs (${totalQs}) must equal selected counts (${totalSelectedCount})!`, {
+    position: "bottom-right",
+    autoClose: 1500,
+  });
+  return;
+}
+
   // ✅ API call
   api.post("/save-paper", {
     examName,
     duration,
     examDate,
-    totalMarks,
+    totalMarks:String(totalQs * eachMark),
     totalQs,
     exam,
     examType,
     subject,
     chapter,
+    eachMark,
     topics: selected,
   })
     .then((res) => {
@@ -207,6 +222,7 @@ const handleSave = () => {
       setSubject("");
       setChapter("");
       setTopics([]);
+      seteachMark("");
       setSelectedTopics({});
     })
     .catch((err) => {
@@ -252,14 +268,14 @@ const getCountsArray = (availableQs = []) => {
           {/* Top fields */}
           <MDBRow className="gy-3">
             <MDBCol md="4">
-              <MDBInput
+              <MDBInput color="outline-info"
                 label="Exam Name"
                 value={examName}
                 onChange={(e) => setExamName(e.target.value)}
               />
             </MDBCol>
             <MDBCol md="2">
-              <MDBInput
+              <MDBInput color="outline-info"
                 label="Duration (mins)"
                 type="number"
                 value={duration}
@@ -267,115 +283,164 @@ const getCountsArray = (availableQs = []) => {
               />
             </MDBCol>
             <MDBCol md="2">
-              <MDBInput
+              <MDBInput color="outline-info"
                 label="Exam Date"
                 type="date"
                 value={examDate}
                 onChange={(e) => setExamDate(e.target.value)}
               />
             </MDBCol>
-            <MDBCol md="2">
-              <MDBInput
-                label="Total Marks"
-                type="number"
-                value={totalMarks}
-                onChange={(e) => setTotalMarks(e.target.value)}
-              />
-            </MDBCol>
-            <MDBCol md="2">
-              <MDBInput
+           <MDBCol md="2">
+              <MDBInput color="outline-info"
                 label="Total Questions"
                 type="number"
                 value={totalQs}
                 onChange={(e) => setTotalQs(e.target.value)}
               />
             </MDBCol>
+            <MDBCol md="2">
+              <MDBInput color="outline-info"
+                label="Each Qs Marks"
+                type="number"
+                value={eachMark}
+                onChange={(e) => seteachMark(e.target.value)}
+              />
+            </MDBCol>
+            
+            
           </MDBRow>
 
           {/* Exam selection */}
           <MDBRow className="gy-3 mt-3">
-            <MDBCol md="3">
-              <select
-                className="form-select"
-                value={exam}
-                onChange={(e) => setExam(e.target.value)}
-              >
-                <option value="">Select Exam</option>
-                {examMock.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
+             <MDBCol md="2">
+              <MDBInput color="outline-info"
+                label="Total Marks"
+                type="number"
+                value={totalQs*eachMark}
+                readOnly
+              />
             </MDBCol>
-            <MDBCol md="3">
-              <select
-                className="form-select"
-                value={examType}
-                onChange={(e) => {
-                  setExamType(e.target.value);
-                  setSubject("");
-                  setChapter("");
-                }}
-              >
-                <option value="">Select Exam Type</option>
-                {examTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
-            </MDBCol>
+           <MDBCol md="2" sm="12">
+  <MDBDropdown className="w-100">
+    <MDBDropdownToggle color="outline-info" className="w-100 text-start">
+      {exam
+        ? examMock.find((e) => e.id === exam)?.name
+        : "Select Exam"}
+    </MDBDropdownToggle>
+    <MDBDropdownMenu className="w-100">
+      {examMock.map((type) => (
+        <MDBDropdownItem
+          key={type.id}
+          link
+          onClick={() => setExam(type.id)}
+          className="d-flex flex-column"
+        >
+          <span className="fw-bold">{type.name}</span>
+        </MDBDropdownItem>
+      ))}
+    </MDBDropdownMenu>
+  </MDBDropdown>
+</MDBCol>
+
+            <MDBCol md="2" sm="12">
+  <MDBDropdown className="w-100">
+    <MDBDropdownToggle color="outline-info" className="w-100 text-start">
+      {examType
+        ? examTypes.find((t) => t.id === examType)?.name
+        : "Select Exam Type"}
+    </MDBDropdownToggle>
+    <MDBDropdownMenu className="w-100">
+      {examTypes.map((type) => (
+        <MDBDropdownItem
+          key={type.id}
+          link
+          onClick={() => {
+            setExamType(type.id);
+            setSubject("");
+            setChapter("");
+          }}
+          className="d-flex flex-column"
+        >
+          <span className="fw-bold">{type.name}</span>
+        </MDBDropdownItem>
+      ))}
+    </MDBDropdownMenu>
+  </MDBDropdown>
+</MDBCol>
 
             {examType === "PAT2" && (
-              <MDBCol md="3">
-                <select
-                  className="form-select"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                >
-                  <option value="">Select Subject</option>
-                  {subjects.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name}
-                    </option>
-                  ))}
-                </select>
-              </MDBCol>
+             <MDBCol md="3" sm="12">
+  <MDBDropdown className="w-100">
+    <MDBDropdownToggle color="outline-info" className="w-100 text-start">
+      {subject
+        ? subjects.find((s) => s.id === subject)?.name
+        : "Select Subject"}
+    </MDBDropdownToggle>
+    <MDBDropdownMenu className="w-100">
+      {subjects.map((sub) => (
+        <MDBDropdownItem
+          key={sub.id}
+          link
+          onClick={() => setSubject(sub.id)}
+          className="d-flex flex-column"
+        >
+          <span className="fw-bold">{sub.name}</span>
+        </MDBDropdownItem>
+      ))}
+    </MDBDropdownMenu>
+  </MDBDropdown>
+</MDBCol>
+
             )}
 
             {examType === "PAT3" && (
               <>
-                <MDBCol md="3">
-                  <select
-                    className="form-select"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                  >
-                    <option value="">Select Subject</option>
-                    {subjects.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                  </select>
-                </MDBCol>
+                <MDBCol md="3" sm="12">
+  <MDBDropdown className="w-100">
+    <MDBDropdownToggle color="outline-info" className="w-100 text-start">
+      {subject
+        ? subjects.find((s) => s.id === subject)?.name
+        : "Select Subject"}
+    </MDBDropdownToggle>
+    <MDBDropdownMenu className="w-100">
+      {subjects.map((sub) => (
+        <MDBDropdownItem
+          key={sub.id}
+          link
+          onClick={() => setSubject(sub.id)}
+          className="d-flex flex-column"
+        >
+          <span className="fw-bold">{sub.name}</span>
+        </MDBDropdownItem>
+      ))}
+    </MDBDropdownMenu>
+  </MDBDropdown>
+</MDBCol>
+
 
                 {subject && (
-                  <MDBCol md="3">
-                    <select
-                      className="form-select"
-                      value={chapter}
-                      onChange={(e) => setChapter(e.target.value)}
-                    >
-                      <option value="">Select Chapter</option>
-                      {chapters.map((ch) => (
-                        <option key={ch.id} value={ch.id}>
-                          {ch.name}
-                        </option>
-                      ))}
-                    </select>
-                  </MDBCol>
+                 <MDBCol md="3" sm="12">
+  <MDBDropdown className="w-100">
+    <MDBDropdownToggle color="outline-info" className="w-100 text-start">
+      {chapter
+        ? chapters.find((ch) => ch.id === chapter)?.name
+        : "Select Chapter"}
+    </MDBDropdownToggle>
+    <MDBDropdownMenu className="w-100">
+      {chapters.map((ch) => (
+        <MDBDropdownItem
+          key={ch.id}
+          link
+          onClick={() => setChapter(ch.id)}
+          className="d-flex flex-column"
+        >
+          <span className="fw-bold">{ch.name}</span>
+        </MDBDropdownItem>
+      ))}
+    </MDBDropdownMenu>
+  </MDBDropdown>
+</MDBCol>
+
                 )}
               </>
             )}

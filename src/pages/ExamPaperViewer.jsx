@@ -95,7 +95,7 @@ const ExamPaperViewer = ({ paperId }) => {
       <h3>{examData.examName}</h3>
       <p>Type: {examData.examType}</p>
       <p>Date: {examData.examDate}</p>
-      <p>Duration: 90 Mins</p>
+      <p>Duration: {examData.duration} Minutes</p>
       <MDBBtn onClick={generatePDF}>Download Exam PDF</MDBBtn>
     </div>
   );

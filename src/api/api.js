@@ -3,7 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const api = axios.create({
-  baseURL: "https://exam-omr.onrender.com/api/mas", // dummy backend URL
+  // baseURL: "http://localhost:8080/api/mas",  //local URL
+  baseURL: "https://exam-omr.onrender.com/api/mas", // prod URL
 });
 
 // 🔹 Request interceptor → attach token
