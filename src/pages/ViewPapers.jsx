@@ -3,12 +3,17 @@ import DataTable from "react-data-table-component";
 import { MDBBtn, MDBModal, MDBModalDialog, MDBModalContent, MDBModalHeader, MDBModalTitle, MDBModalBody, MDBCardHeader } from "mdb-react-ui-kit";
 import api from "../api/api";
 import PaperView from "./PaperView";
+import { FaEye, FaFileAlt } from "react-icons/fa";
+import { BsFiletypePng } from "react-icons/bs";
+import { FaRegFilePdf } from "react-icons/fa6";
+import CreateOmrSheet from "../components/CreateOmrSheet";
 
 const ViewPapers = () => {
   const [papers, setPapers] = useState([]);
   const [showPaperModal, setShowPaperModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-
+  const [omrType, setOmrType] = useState(null);
+  const [showOmr, setShowOmr] = useState(false);
   useEffect(() => {
     api.get("/get-paper-list").then((res) => {
       setPapers(res.data.data);
@@ -18,8 +23,20 @@ const ViewPapers = () => {
   const handleView = (row) => {
     setSelectedRow(row);   // ✅ store the full row
     setShowPaperModal(true);
+    // console.log(selectedRow);
   };
 
+  const handleOMRPDF = (row) => {
+  setSelectedRow(row);
+  setOmrType("PDF");
+  setShowOmr(true);
+};
+
+const handleOMRPNG = (row) => {
+  setSelectedRow(row);
+  setOmrType("PNG");
+  setShowOmr(true);
+};
   const columns = [
     { name: "Paper Name", selector: (row) => row.paper_name, sortable: true },
     { name: "Exam Name", selector: (row) => row.exam_name, sortable: true },
@@ -29,14 +46,34 @@ const ViewPapers = () => {
     { name: "Total Qs", selector: (row) => row.tot_qs, sortable: true },
     { name: "Marks", selector: (row) => row.tot_mrks, sortable: true },
     { name: "Duration", selector: (row) => row.parer_duration, sortable: true },
-    {
-      name: "Action",
-      cell: (row) => (
-        <MDBBtn size="sm" onClick={() => handleView(row)}>
-          View
-        </MDBBtn>
-      ),
-    },
+   {
+  name: "View",
+  cell: (row) => (
+    <FaEye 
+      style={{ cursor: "pointer", fontSize: "18px", color: "#2cc540ff" }}
+      onClick={() => handleView(row)} 
+    />
+  ),
+},
+{
+  name: "OMR PNG",
+  cell: (row) => (
+    <BsFiletypePng 
+      style={{ cursor: "pointer", fontSize: "18px", color: "#257bc2ff" }}
+      onClick={() => handleOMRPNG(row)} 
+    />
+  ),
+},
+{
+  name: "OMR PDF",
+  cell: (row) => (
+    <FaRegFilePdf 
+      style={{ cursor: "pointer", fontSize: "18px", color: "#da2f2fff" }}
+      onClick={() => handleOMRPDF(row)} 
+    />
+  ),
+},
+
   ];
 
 const customStyles = {
@@ -51,6 +88,15 @@ const customStyles = {
 
   return (
     <>
+     {selectedRow && omrType && (
+      <CreateOmrSheet
+        examName={selectedRow.exam_name}
+        paperName={selectedRow.paper_name}
+        paperCode={selectedRow.paper_id}
+        totalQuestions={selectedRow.tot_qs}
+        type={omrType}
+      />
+    )}
     <MDBCardHeader className="text-center bg-secondary text-white">
               <h4>Paper List</h4></MDBCardHeader>
       <DataTable

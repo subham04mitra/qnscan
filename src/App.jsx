@@ -15,6 +15,7 @@ import { refreshTokenApi } from "./api/authService";
 import { decodeToken, getToken } from "./utils/jwtUtils";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import ExamPaperViewer from "./pages/ExamPaperViewer";
+import CreateOmrSheet from "./components/CreateOmrSheet";
 function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true); // Track token check
@@ -66,6 +67,11 @@ function App() {
         path="/test"
         element={<ExamPaperViewer/>}
       />
+        <Route path="/omr" element={<CreateOmrSheet 
+      examName="Final Exam 2025"
+      paperName="PHYSICS - Paper I"
+      paperCode="PHSA101"
+      totalQuestions={100}/>} />
       {/* Protected Routes */}
       <Route
         path="/"

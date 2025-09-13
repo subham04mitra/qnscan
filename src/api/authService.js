@@ -1,8 +1,8 @@
 import { getToken, storeToken, clearToken } from "../utils/jwtUtils";
 import { toast } from "react-toastify";
 
-const API_BASE = "https://exam-omr.onrender.com/api/auth"; //PORD
-// const API_BASE = "http://localhost:8080/api/auth"; //local
+// const API_BASE = "https://exam-omr.onrender.com/api/auth"; //PORD
+const API_BASE = "http://localhost:8080/api/auth"; //local
 
 // 🔹 Common error handler for 408
 async function handleResponse(res) {

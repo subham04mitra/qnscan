@@ -1,9 +1,8 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaUser,
-  FaUsers,
   FaUpload,
   FaFileAlt,
   FaClipboardList,
@@ -11,39 +10,35 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { logoutApi } from "../api/authService";
-import "./Sidebar.css";
-import { ToastContainer, toast } from "react-toastify"; // ✅ correct import
-import "react-toastify/dist/ReactToastify.css"; // ✅ include styles
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo2.png";
-import { useNavigate } from "react-router-dom";
-const avatarImg =logo;
+import "./Sidebar.css";
 
-function Sidebar({ role, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
-    const navigate = useNavigate();
+const avatarImg = logo;
+
+function Sidebar({ role, collapsed, setCollapsed }) {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       await logoutApi();
       localStorage.removeItem("token");
 
-      // ✅ show toast
       toast.success("Logout successful 👋", {
         position: "top-right",
         autoClose: 1500,
       });
 
-      // ✅ reload after short delay
       setTimeout(() => {
-          navigate("/login", { replace: true }); // redirect to dashboard -> MainLayout -> sidebar
-        }, 1600);
+        navigate("/login", { replace: true });
+      }, 1600);
     } catch (error) {
       toast.error("Logout failed ❌");
     }
   };
 
-
-
   const toggleSidebar = () => setCollapsed(!collapsed);
-  const toggleMobileSidebar = () => setMobileOpen(!mobileOpen);
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: <FaTachometerAlt />, roles: ["ADMIN", "TEACHER", "OWNER"] },
@@ -57,16 +52,8 @@ function Sidebar({ role, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
 
   return (
     <>
-      {/* Mobile burger */}
-      <div className="mobile-burger" onClick={toggleMobileSidebar}>
-        ☰
-      </div>
-
-      <div
-        className={`sidebar ${collapsed ? "collapsed" : ""} ${
-          mobileOpen ? "mobile-open" : ""
-        }`}
-      >
+      {/* Desktop Sidebar */}
+      <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         {/* Sidebar Header */}
         <div className="sidebar-header">
           <div className="collapsed-user">
@@ -87,10 +74,7 @@ function Sidebar({ role, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
                   <li key={item.path}>
                     <NavLink
                       to={item.path}
-                      className={({ isActive }) =>
-                        isActive ? "active-link" : ""
-                      }
-                      onClick={() => mobileOpen && setMobileOpen(false)}
+                      className={({ isActive }) => (isActive ? "active-link" : "")}
                     >
                       <span className="icon">{item.icon}</span>
                       {!collapsed && <span className="label">{item.label}</span>}
@@ -100,20 +84,49 @@ function Sidebar({ role, collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             )}
           </ul>
 
-          {/* Logout at Bottom */}
+          {/* Desktop Logout */}
           <button
             className={`logout-btn ${collapsed ? "collapsed-logout" : ""}`}
             onClick={handleLogout}
           >
             <span className="icon">
-              <FaSignOutAlt /> 
+              <FaSignOutAlt />
             </span>
             {!collapsed && <span className="label">Logout</span>}
           </button>
         </div>
       </div>
 
-      {/* ✅ Toast container */}
+      {/* Mobile Bottom Navigation */}
+      <div className="mobile-bottom-nav">
+        <div className="bottom-nav-links">
+          {menuItems
+            .filter((item) => item.roles.includes(role))
+            .map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `bottom-nav-link ${isActive ? "active" : ""}`}
+              >
+                <span className="icon">{item.icon}</span>
+                <span className="label">{item.label}</span>
+              </NavLink>
+            ))}
+
+          {/* Logout icon only */}
+          <button className="logout-btn collapsed-logout" style={{margin:"5px"}} onClick={handleLogout}>
+            <span className="icon">
+              <FaSignOutAlt />   
+            </span>
+          </button>
+        </div>
+
+        {/* Gap for system nav + developer text */}
+        <div className="bottom-nav-gap">
+          <span className="developer-text">Developed by TechnoidHut</span>
+        </div>
+      </div>
+
       <ToastContainer />
     </>
   );

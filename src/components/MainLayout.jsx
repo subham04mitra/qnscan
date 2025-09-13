@@ -22,6 +22,8 @@ function MainLayout({ role }) {
         style={{
           flexGrow: 1,            // takes all remaining space
           padding: "20px",
+          marginTop:"35px",
+          marginBottom:"10px",
           transition: "all 0.3s", // smooth animation
           overflow: "auto",       // scroll if content overflows
         }}

@@ -87,7 +87,7 @@ function LoginForm({ onLogin }) {
             width: "100%",
           }}
         >
-          <MDBCardBody className="p-5 text-center text-white">
+          <MDBCardBody className="p-5 text-center text-black">
             <h2 className="fw-bold mb-4">Login to QnScan</h2>
 
             <form onSubmit={handleSubmit}>
@@ -100,8 +100,8 @@ function LoginForm({ onLogin }) {
                 value={uuid}
                 onChange={(e) => setUuid(e.target.value)}
                 required
-                className="text-white"
-                contrast
+                className="text-black"
+                
               />
 
               {/* Password */}
@@ -113,8 +113,8 @@ function LoginForm({ onLogin }) {
                 value={user_pwd}
                 onChange={(e) => setUser_pwd(e.target.value)}
                 required
-                className="text-white"
-                contrast
+                className="text-black"
+                
               />
 
               {/* Captcha */}
@@ -130,8 +130,8 @@ function LoginForm({ onLogin }) {
                   value={captchaInput}
                   onChange={(e) => setCaptchaInput(e.target.value)}
                   required
-                  className="text-white"
-                  contrast
+                  className="text-black"
+                  
                   style={{ width: "70px", height: "40px" }}
                 />
               </div>
