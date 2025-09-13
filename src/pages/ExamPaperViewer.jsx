@@ -149,8 +149,26 @@ const ExamPaperViewer = ({ paperId }) => {
           drawBorder(doc, pageWidth, pageHeight);
           yOffset = 30;
         }
-        doc.text(`${opt.label || ""}. ${opt.text || ""}`, 26, yOffset);
-        yOffset += 6;
+        if (opt.type === "RAW") {
+    // Simple text option
+    doc.text(`${opt.label || ""}. ${opt.text || ""}`, 26, yOffset);
+    yOffset += 6;
+
+  } else if (opt.type === "IMG" && opt.text) {
+    // Convert Base64 image
+    try {
+      // Adjust width/height for consistency
+      const imgWidth = 40;
+      const imgHeight = 25;
+      doc.text(`${opt.label || ""}.`, 20, yOffset + 10); // label left aligned
+      doc.addImage(opt.text, "PNG", 30, yOffset, imgWidth, imgHeight);
+
+      // Move yOffset down after image
+      yOffset += imgHeight + 6;
+    } catch (err) {
+      console.error("Image render failed:", err);
+    }
+  }
       });
 
       yOffset += 4;

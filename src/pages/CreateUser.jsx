@@ -164,7 +164,8 @@ const CreateUser = () => {
   };
 
   return (
-    <MDBContainer fluid className="p-4 bg-light" style={{ minHeight: "100%" }}>
+    <>
+    <MDBContainer fluid className="bg-light" style={{ minHeight: "100%"}}>
       <MDBRow className="justify-content-center">
         <MDBCol md="10" lg="10">
           <MDBCard className="shadow-4 rounded-4" style={{width:"100%"}}>
@@ -339,7 +340,8 @@ const CreateUser = () => {
           </MDBCard>
         </MDBCol>
       </MDBRow>
-    </MDBContainer>
+    </MDBContainer></>
+    
   );
 };
 
